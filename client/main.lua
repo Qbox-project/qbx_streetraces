@@ -5,7 +5,7 @@ local RaceId = 0
 local ShowCountDown = false
 local RaceCount = 5
 
-function DrawText3Ds(x, y, z, text)
+local function DrawText3Ds(x, y, z, text)
 	SetTextScale(0.35, 0.35)
     SetTextFont(4)
     SetTextProportional(1)
@@ -20,9 +20,24 @@ function DrawText3Ds(x, y, z, text)
     ClearDrawOrigin()
 end
 
+local function RaceCountDown()
+    ShowCountDown = true
+    while RaceCount ~= 0 do
+        FreezeEntityPosition(GetVehiclePedIsIn(PlayerPedId(), true), true)
+        PlaySound(-1, "slow", "SHORT_PLAYER_SWITCH_SOUND_SET", 0, 0, 1)
+        QBCore.Functions.Notify(RaceCount, 'primary', 800)
+        Wait(1000)
+        RaceCount = RaceCount - 1
+    end
+    ShowCountDown = false
+    RaceCount = 5
+    FreezeEntityPosition(GetVehiclePedIsIn(PlayerPedId(), true), false)
+    QBCore.Functions.Notify("GOOOOOOOOO!!!")
+end
+
 CreateThread(function()
     while true do
-        Wait(7)
+        local sleep = 1000
         if Races ~= nil then
             -- No race yet
             local pos = GetEntityCoords(PlayerPedId(), true)
@@ -30,6 +45,7 @@ CreateThread(function()
                 for k in pairs(Races) do
                     if Races[k] ~= nil then
                         if #(pos - vector3(Races[k].startx, Races[k].starty, Races[k].startz)) < 15.0 and not Races[k].started then
+                            sleep = 1
                             DrawText3Ds(Races[k].startx, Races[k].starty, Races[k].startz, "[~g~H~w~] To Join The Race (~g~$"..Races[k].amount..",-~w~)")
                             if IsControlJustReleased(0, 74) then
                                 TriggerServerEvent("qb-streetraces:JoinRace", k)
@@ -42,12 +58,14 @@ CreateThread(function()
             -- Not started in race yet
             if RaceId ~= 0 and not InRace then
                 if #(pos - vector3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)) < 15.0 and not Races[RaceId].started then
+                    sleep = 1
                     DrawText3Ds(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz, "Race Will Start Soon")
                 end
             end
             -- In race and started
             if RaceId ~= 0 and InRace then
                 if #(pos - vector3(Races[RaceId].endx, Races[RaceId].endy, pos.z)) < 250.0 and Races[RaceId].started then
+                    sleep = 1
                     DrawText3Ds(Races[RaceId].endx, Races[RaceId].endy, pos.z + 0.98, "FINISH")
                     if #(pos - vector3(Races[RaceId].endx, Races[RaceId].endy, pos.z)) < 15.0 then
                         TriggerServerEvent("qb-streetraces:RaceWon", RaceId)
@@ -58,10 +76,12 @@ CreateThread(function()
 
             if ShowCountDown then
                 if #(pos - vector3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)) < 15.0 and Races[RaceId].started then
+                    sleep = 1
                     DrawText3Ds(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz, "Race start in ~g~"..RaceCount)
                 end
             end
         end
+        Wait(sleep)
     end
 end)
 
@@ -123,18 +143,3 @@ RegisterNetEvent('qb-streetraces:SetRaceId', function(race)
     RaceId = race
     SetNewWaypoint(Races[RaceId].endx, Races[RaceId].endy)
 end)
-
-function RaceCountDown()
-    ShowCountDown = true
-    while RaceCount ~= 0 do
-        FreezeEntityPosition(GetVehiclePedIsIn(PlayerPedId(), true), true)
-        PlaySound(-1, "slow", "SHORT_PLAYER_SWITCH_SOUND_SET", 0, 0, 1)
-        QBCore.Functions.Notify(RaceCount, 'primary', 800)
-        Wait(1000)
-        RaceCount = RaceCount - 1
-    end
-    ShowCountDown = false
-    RaceCount = 5
-    FreezeEntityPosition(GetVehiclePedIsIn(PlayerPedId(), true), false)
-    QBCore.Functions.Notify("GOOOOOOOOO!!!")
-end
