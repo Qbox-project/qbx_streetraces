@@ -45,7 +45,7 @@ CreateThread(function()
                 for k in pairs(Races) do
                     if Races[k] ~= nil then
                         if #(pos - vector3(Races[k].startx, Races[k].starty, Races[k].startz)) < 15.0 and not Races[k].started then
-                            sleep = 1
+                            sleep = 0
                             DrawText3Ds(Races[k].startx, Races[k].starty, Races[k].startz, "[~g~H~w~] To Join The Race (~g~$"..Races[k].amount..",-~w~)")
                             if IsControlJustReleased(0, 74) then
                                 TriggerServerEvent("qb-streetraces:JoinRace", k)
@@ -58,14 +58,14 @@ CreateThread(function()
             -- Not started in race yet
             if RaceId ~= 0 and not InRace then
                 if #(pos - vector3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)) < 15.0 and not Races[RaceId].started then
-                    sleep = 1
+                    sleep = 0
                     DrawText3Ds(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz, "Race Will Start Soon")
                 end
             end
             -- In race and started
             if RaceId ~= 0 and InRace then
                 if #(pos - vector3(Races[RaceId].endx, Races[RaceId].endy, pos.z)) < 250.0 and Races[RaceId].started then
-                    sleep = 1
+                    sleep = 0
                     DrawText3Ds(Races[RaceId].endx, Races[RaceId].endy, pos.z + 0.98, "FINISH")
                     if #(pos - vector3(Races[RaceId].endx, Races[RaceId].endy, pos.z)) < 15.0 then
                         TriggerServerEvent("qb-streetraces:RaceWon", RaceId)
@@ -76,7 +76,7 @@ CreateThread(function()
 
             if ShowCountDown then
                 if #(pos - vector3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)) < 15.0 and Races[RaceId].started then
-                    sleep = 1
+                    sleep = 0
                     DrawText3Ds(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz, "Race start in ~g~"..RaceCount)
                 end
             end
