@@ -30,27 +30,26 @@ CreateThread(function()
                     if Races[k] ~= nil then
                         if #(pos - vector3(Races[k].startx, Races[k].starty, Races[k].startz)) < 15.0 and not Races[k].started then
                             sleep = 0
-                            DrawText3D("[~g~H~w~] To Join The Race (~g~$"..Races[k].amount..",-~w~)", vec3(Races[k].startx, Races[k].starty, Races[k].startz))
+                            qbx.drawText3d({text = "[~g~H~w~] To Join The Race (~g~$"..Races[k].amount..",-~w~)", coords = vec3(Races[k].startx, Races[k].starty, Races[k].startz)})
                             if IsControlJustReleased(0, 74) then
                                 TriggerServerEvent("qb-streetraces:JoinRace", k)
                             end
                         end
                     end
-
                 end
             end
             -- Not started in race yet
             if RaceId ~= 0 and not InRace then
                 if #(pos - vector3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)) < 15.0 and not Races[RaceId].started then
                     sleep = 0
-                    DrawText3D("Race Will Start Soon", vec3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz))
+                    qbx.drawText3d({text = "Race Will Start Soon", coords = vec3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)})
                 end
             end
             -- In race and started
             if RaceId ~= 0 and InRace then
                 if #(pos - vector3(Races[RaceId].endx, Races[RaceId].endy, pos.z)) < 250.0 and Races[RaceId].started then
                     sleep = 0
-                    DrawText3D("FINISH", vec3(Races[RaceId].endx, Races[RaceId].endy, pos.z + 0.98))
+                    qbx.drawText3d({text = "FINISH", coords = vec3(Races[RaceId].endx, Races[RaceId].endy, pos.z + 0.98)})
                     if #(pos - vector3(Races[RaceId].endx, Races[RaceId].endy, pos.z)) < 15.0 then
                         TriggerServerEvent("qb-streetraces:RaceWon", RaceId)
                         InRace = false
@@ -61,7 +60,7 @@ CreateThread(function()
             if ShowCountDown then
                 if #(pos - vector3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)) < 15.0 and Races[RaceId].started then
                     sleep = 0
-                    DrawText3D("Race start in ~g~"..RaceCount, vec3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz))
+                    qbx.drawText3d({text = "Race start in ~g~"..RaceCount, coords = vec3(Races[RaceId].startx, Races[RaceId].starty, Races[RaceId].startz)})
                 end
             end
         end
