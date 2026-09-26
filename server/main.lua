@@ -28,12 +28,11 @@ local function getJoinedRace(identifier)
 end
 
 local function removeFromRace(identifier)
-    for _, race in pairs(Races) do
-        if not race.started then
-            for i = #race.joined, 1, -1 do
-                if race.joined[i] == identifier then table.remove(race.joined, i) end
-            end
+    for raceId, race in pairs(Races) do
+        for i = #race.joined, 1, -1 do
+            if race.joined[i] == identifier then table.remove(race.joined, i) end
         end
+        if #race.joined == 0 then Races[raceId] = nil end
     end
 end
 
@@ -179,14 +178,32 @@ lib.addCommand('quitrace', {help = 'Get Out Of A Race. (You Will NOT Get Your Mo
         exports.qbx_core:Notify(source, 'You Are Not In A Race', 'error')
     elseif getCreatedRace(license) == raceId then
         exports.qbx_core:Notify(source, '/stoprace To Stop The Race', 'error')
-    elseif Races[raceId].started then
-        exports.qbx_core:Notify(source, 'You Cannot Quit A Race After It Starts', 'error')
     else
         removeFromRace(license)
         TriggerClientEvent('qb-streetraces:StopRace', source)
         syncRaces()
         exports.qbx_core:Notify(source, 'You Have Stepped Out Of The Race! And You Lost Your Money', 'error')
     end
+end)
+
+AddEventHandler('playerDropped', function()
+    local license = getLicense(source)
+    if not license then return end
+
+    local raceId = getCreatedRace(license)
+    local race = Races[raceId]
+    if race then
+        Races[raceId] = nil
+        for _, joined in ipairs(race.joined) do
+            local player = joined ~= license and getPlayerByLicense(joined)
+            if player then
+                player.Functions.AddMoney('cash', race.amount, 'race-cancelled')
+                TriggerClientEvent('qb-streetraces:StopRace', player.PlayerData.source)
+            end
+        end
+    end
+    removeFromRace(license)
+    syncRaces()
 end)
 
 lib.addCommand('startrace', {help = 'Start The Race'}, function(source)
